@@ -1,0 +1,60 @@
+/* GasGuide brand tokens. Change a value here and it updates everywhere —
+   no component should hardcode a color or spacing value directly. */
+:root {
+  --forest: #1b4332; /* primary — headers, buttons, active tab */
+  --forest-dark: #122a20; /* pressed states, deepest accents */
+  --moss: #40916c; /* secondary — icons, links */
+  --sage: #b7e4c7; /* light accent — chips, the logo fill */
+  --cream: #f8f6f0; /* app background — warm, not stark white */
+  --amber: #e9b44c; /* accent — price / savings call-outs ONLY */
+  --charcoal: #1f2a22; /* primary text */
+  --slate: #6b7a70; /* secondary text */
+  --white: #ffffff;
+  --border: #e7e2d6;
+  --danger: #c1443c;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--charcoal);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Numbers get their own treatment throughout the app — this is a
+   calculator first, prices/MPG/distances should read as precise. */
+.stat {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--forest);
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+
+.body-muted {
+  font-size: 14px;
+  color: var(--slate);
+}
