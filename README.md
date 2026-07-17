@@ -1,6 +1,6 @@
 # GasGuide (web)
 
-— trip fuel-cost calculator with a station price map —
+trip fuel-cost calculator with a station price map
 now running as a website instead of through Expo Go. This sidesteps the
 mobile SDK version-matching problems entirely: it's just a browser.
 
@@ -21,7 +21,7 @@ Network: http://192.168.x.x:5173/
 
 Open the **Local** one on your own computer to check it works. To see it on
 your phone: make sure your phone is on the same Wi-Fi as your computer,
-then open the **Network** address in your phone's browser — no app store,
+then open the **Network** address in your phone's browser.No app store,
 no QR code, no install required on the phone at all.
 
 Commit before you open this in Claude Code, and again after any change you
@@ -30,7 +30,7 @@ understand and want to keep.
 ## Continue building it in Claude Code
 
 Open this folder in Claude Code (`cd` into it, run `claude`). It reads
-**CLAUDE.md** automatically — full architecture, brand decisions, and
+**CLAUDE.md** automatically, full architecture, brand decisions, and
 exactly where each real integration goes, in build order.
 
 ## What's real vs. mock right now
