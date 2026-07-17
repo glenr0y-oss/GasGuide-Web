@@ -1,6 +1,6 @@
 # GasGuide (web)
 
-Same app as before — trip fuel-cost calculator with a station price map —
+— trip fuel-cost calculator with a station price map —
 now running as a website instead of through Expo Go. This sidesteps the
 mobile SDK version-matching problems entirely: it's just a browser.
 
