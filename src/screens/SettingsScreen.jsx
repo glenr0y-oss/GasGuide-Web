@@ -9,19 +9,21 @@ const PRO_FEATURES = [
 ];
 
 export default function SettingsScreen() {
-  const { isPro, upgradeToPro } = usePro();
+  const { isPro, togglePro } = usePro();
 
-  function handleUpgrade() {
-    // NEXT INTEGRATION: this simulates a successful purchase. A real
-    // payment provider (Stripe for web) takes over here. See CLAUDE.md
-    // "Monetization." — upgradeToPro() is the stand-in for that check.
-    confetti({
-      particleCount: 90,
-      spread: 75,
-      origin: { y: 0.6 },
-      colors: ['#e9b44c', '#b7e4c7'],
-    });
-    upgradeToPro();
+  function handleTogglePro() {
+    // NEXT INTEGRATION: dev tool only, for previewing the Pro theme. A
+    // real payment provider (Stripe for web) replaces this entirely — see
+    // CLAUDE.md "Monetization." Confetti only plays on the on-transition.
+    if (!isPro) {
+      confetti({
+        particleCount: 90,
+        spread: 75,
+        origin: { y: 0.6 },
+        colors: ['#e9b44c', '#b7e4c7'],
+      });
+    }
+    togglePro();
   }
 
   return (
@@ -39,6 +41,9 @@ export default function SettingsScreen() {
             You're all set — unlimited vehicles, price-drop alerts, OBD-II
             diagnostics, and no ads.
           </p>
+          <button className="upgrade-button" onClick={handleTogglePro}>
+            Turn off Pro preview
+          </button>
         </div>
       ) : (
         <div className="pro-card">
@@ -50,8 +55,8 @@ export default function SettingsScreen() {
               <span>{feature}</span>
             </div>
           ))}
-          <button className="upgrade-button" onClick={handleUpgrade}>
-            Upgrade
+          <button className="upgrade-button" onClick={handleTogglePro}>
+            Preview Pro
           </button>
         </div>
       )}

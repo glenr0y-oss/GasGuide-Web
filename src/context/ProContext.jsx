@@ -3,15 +3,17 @@ import { createContext, useContext, useState } from 'react';
 const ProContext = createContext(null);
 
 export function ProProvider({ children }) {
-  // NEXT INTEGRATION: this simulates a successful purchase. Replace with a
-  // real Stripe entitlement/billing check. See CLAUDE.md "Monetization."
+  // NEXT INTEGRATION: togglePro is a dev-only toggle for previewing the
+  // Pro theme instantly, in both directions. Real billing replaces this
+  // entirely with a Stripe entitlement/billing check that only ever turns
+  // isPro on. See CLAUDE.md "Monetization."
   const [isPro, setIsPro] = useState(false);
 
-  function upgradeToPro() {
-    setIsPro(true);
+  function togglePro() {
+    setIsPro((prev) => !prev);
   }
 
-  const value = { isPro, upgradeToPro };
+  const value = { isPro, togglePro };
 
   return <ProContext.Provider value={value}>{children}</ProContext.Provider>;
 }
