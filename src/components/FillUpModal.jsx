@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { processFillUpReport } from '../data/mockStations';
 import { getEfficiencyUnitLabel } from '../data/mockVehicles';
 
-export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose }) {
+export default function FillUpModal({ vehicle, onSave, onClose }) {
   const isEv = vehicle?.fuelKind === 'ev';
   const unitLabel = getEfficiencyUnitLabel(vehicle);
   const unitNoun = isEv ? 'kWh' : 'gallon';
@@ -10,12 +10,13 @@ export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose })
   const [step, setStep] = useState('input');
   const [pricePerUnit, setPricePerUnit] = useState('');
   const [unitsPurchased, setUnitsPurchased] = useState('');
+  const [milesSinceFillUp, setMilesSinceFillUp] = useState('');
   const [result, setResult] = useState(null);
 
   function handleSave() {
     const report = processFillUpReport({
       pricePerUnit: parseFloat(pricePerUnit) || 0,
-      milesSinceLastFillUp: distanceMiles,
+      milesSinceLastFillUp: parseFloat(milesSinceFillUp) || 0,
       unitsPurchased: parseFloat(unitsPurchased) || 0,
     });
     setResult(report);
@@ -51,6 +52,15 @@ export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose })
               value={unitsPurchased}
               onChange={(e) => setUnitsPurchased(e.target.value)}
               placeholder={isEv ? 'kWh added' : 'Gallons purchased'}
+            />
+            <input
+              className="text-input section-spacing"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              value={milesSinceFillUp}
+              onChange={(e) => setMilesSinceFillUp(e.target.value)}
+              placeholder="Miles driven since your last fill-up"
             />
             <div className="modal-actions">
               <button className="modal-skip-button" onClick={onClose}>

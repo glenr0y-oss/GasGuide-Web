@@ -82,7 +82,6 @@ export default function TripCostScreen() {
       {showFillUp && (
         <FillUpModal
           vehicle={selectedVehicle}
-          distanceMiles={distanceMiles}
           onSave={(report) => setFillUpReports((reports) => [...reports, report])}
           onClose={() => setShowFillUp(false)}
         />
