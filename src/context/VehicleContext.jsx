@@ -6,18 +6,26 @@ const VehicleContext = createContext(null);
 export function VehicleProvider({ children }) {
   const vehicles = getVehicleOptions();
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicles[0].id);
-  const [activeFactorIds, setActiveFactorIds] = useState([]);
+  // Keyed by vehicle id — condition factors are specific to one vehicle's
+  // wear and tear, so flagging an issue on one car must not silently carry
+  // that penalty over when the user switches to a different vehicle.
+  const [factorsByVehicle, setFactorsByVehicle] = useState({});
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0];
+  const activeFactorIds = factorsByVehicle[selectedVehicleId] ?? [];
   const adjustedEfficiency = useMemo(
     () => getAdjustedEfficiency(selectedVehicle, activeFactorIds),
     [selectedVehicle, activeFactorIds]
   );
 
   function toggleFactor(id) {
-    setActiveFactorIds((current) =>
-      current.includes(id) ? current.filter((f) => f !== id) : [...current, id]
-    );
+    setFactorsByVehicle((current) => {
+      const currentForVehicle = current[selectedVehicleId] ?? [];
+      const updatedForVehicle = currentForVehicle.includes(id)
+        ? currentForVehicle.filter((f) => f !== id)
+        : [...currentForVehicle, id];
+      return { ...current, [selectedVehicleId]: updatedForVehicle };
+    });
   }
 
   const value = {
