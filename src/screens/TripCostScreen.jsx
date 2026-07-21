@@ -28,6 +28,20 @@ export default function TripCostScreen() {
 
   return (
     <div className="screen">
+      <div className="hero-cost-card">
+        <span className="label">This trip will cost about</span>
+        <div className="hero-cost-row">
+          <span className="hero-cost">${estimatedCost.toFixed(2)}</span>
+          <span className="hero-cost-gallons">{gallonsNeeded.toFixed(1)} gal</span>
+        </div>
+        <span className="hero-cost-caption">
+          {distanceMiles.toFixed(1)} mi
+          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/gal at ${bestPrice.name}` : ''}
+        </span>
+      </div>
+
+      <div className="divider" />
+
       <span className="label">1. Vehicle</span>
       <div className="chip-row">
         {vehicles.map((vehicle) => (
@@ -57,17 +71,6 @@ export default function TripCostScreen() {
             {factor.label}
           </button>
         ))}
-      </div>
-
-      <div className="divider" />
-
-      <div className="hero-cost-card">
-        <span className="label">This trip will cost about</span>
-        <span className="hero-cost">${estimatedCost.toFixed(2)}</span>
-        <span className="hero-cost-caption">
-          {distanceMiles.toFixed(1)} mi · {gallonsNeeded.toFixed(1)} gal
-          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/gal at ${bestPrice.name}` : ''}
-        </span>
       </div>
 
       <button className="add-vehicle-button section-spacing" onClick={() => setShowFillUp(true)}>
