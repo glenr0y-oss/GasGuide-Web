@@ -1,7 +1,8 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getNearbyStations } from '../data/mockStations';
+import { getNearbyStations, getPriceUnitLabel } from '../data/mockStations';
+import { useVehicle } from '../context/VehicleContext';
 
 // Uses OpenStreetMap tiles via Leaflet — genuinely real, no API key ever
 // required, unlike Google Maps' JS SDK. Good enough to ship with as-is;
@@ -18,7 +19,9 @@ function makePin(isCheapest) {
 }
 
 export default function StationMapScreen() {
-  const stations = getNearbyStations();
+  const { selectedVehicle } = useVehicle();
+  const stations = getNearbyStations(selectedVehicle.fuelKind);
+  const priceUnitLabel = getPriceUnitLabel(selectedVehicle.fuelKind);
   const cheapest = stations[0];
   const center = [stations[0]?.lat ?? 41.7, stations[0]?.lng ?? -72.68];
 
@@ -37,7 +40,7 @@ export default function StationMapScreen() {
               icon={makePin(station.id === cheapest?.id)}
             >
               <Popup>
-                {station.name} — ${station.price.toFixed(2)}/gal
+                {station.name} — ${station.price.toFixed(2)}/{priceUnitLabel}
               </Popup>
             </Marker>
           ))}

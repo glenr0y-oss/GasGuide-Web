@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import { processFillUpReport } from '../data/mockStations';
+import { getEfficiencyUnitLabel } from '../data/mockVehicles';
 
 export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose }) {
+  const isEv = vehicle?.fuelKind === 'ev';
+  const unitLabel = getEfficiencyUnitLabel(vehicle);
+  const unitNoun = isEv ? 'kWh' : 'gallon';
+
   const [step, setStep] = useState('input');
-  const [pricePerGallon, setPricePerGallon] = useState('');
-  const [gallonsPurchased, setGallonsPurchased] = useState('');
+  const [pricePerUnit, setPricePerUnit] = useState('');
+  const [unitsPurchased, setUnitsPurchased] = useState('');
   const [result, setResult] = useState(null);
 
   function handleSave() {
     const report = processFillUpReport({
-      pricePerGallon: parseFloat(pricePerGallon) || 0,
+      pricePerUnit: parseFloat(pricePerUnit) || 0,
       milesSinceLastFillUp: distanceMiles,
-      gallonsPurchased: parseFloat(gallonsPurchased) || 0,
+      unitsPurchased: parseFloat(unitsPurchased) || 0,
     });
     setResult(report);
     onSave(report);
@@ -23,19 +28,19 @@ export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose })
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         {step === 'input' ? (
           <>
-            <p className="modal-title">What&apos;d you pay per gallon?</p>
+            <p className="modal-title">What&apos;d you pay per {unitNoun}?</p>
             <p className="modal-subtext">
               Your answer keeps prices accurate for drivers near you — and updates your car&apos;s
-              real MPG.
+              real {unitLabel}.
             </p>
             <input
               className="text-input"
               type="number"
               inputMode="decimal"
               step="0.01"
-              value={pricePerGallon}
-              onChange={(e) => setPricePerGallon(e.target.value)}
-              placeholder="Price per gallon"
+              value={pricePerUnit}
+              onChange={(e) => setPricePerUnit(e.target.value)}
+              placeholder={`Price per ${unitNoun}`}
               autoFocus
             />
             <input
@@ -43,9 +48,9 @@ export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose })
               type="number"
               inputMode="decimal"
               step="0.01"
-              value={gallonsPurchased}
-              onChange={(e) => setGallonsPurchased(e.target.value)}
-              placeholder="Gallons purchased"
+              value={unitsPurchased}
+              onChange={(e) => setUnitsPurchased(e.target.value)}
+              placeholder={isEv ? 'kWh added' : 'Gallons purchased'}
             />
             <div className="modal-actions">
               <button className="modal-skip-button" onClick={onClose}>
@@ -58,9 +63,10 @@ export default function FillUpModal({ vehicle, distanceMiles, onSave, onClose })
           </>
         ) : (
           <>
-            {result?.realMpg ? (
+            {result?.realEfficiency ? (
               <p className="modal-title">
-                Your {vehicle.model} is getting {result.realMpg} mpg — rated {vehicle.combinedMpg}
+                Your {vehicle.model} is getting {result.realEfficiency} {unitLabel} — rated{' '}
+                {isEv ? vehicle.efficiencyMiPerKwh : vehicle.combinedMpg} {unitLabel}
               </p>
             ) : (
               <p className="modal-title">Thanks — that helps keep prices accurate nearby.</p>

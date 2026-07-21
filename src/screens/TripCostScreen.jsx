@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { conditionFactors } from '../data/mockVehicles';
-import { getBestPrice } from '../data/mockStations';
+import { getBestPrice, getPriceUnitLabel } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
 import DestinationPicker from '../components/DestinationPicker';
 import FillUpModal from '../components/FillUpModal';
 
 export default function TripCostScreen() {
-  const bestPrice = getBestPrice();
   const {
     vehicles,
     selectedVehicle,
@@ -14,8 +13,11 @@ export default function TripCostScreen() {
     setSelectedVehicleId,
     activeFactorIds,
     toggleFactor,
-    adjustedMpg,
+    adjustedEfficiency,
   } = useVehicle();
+
+  const bestPrice = getBestPrice(selectedVehicle.fuelKind);
+  const priceUnitLabel = getPriceUnitLabel(selectedVehicle.fuelKind);
 
   const [distanceMiles, setDistanceMiles] = useState(0);
   const [showFillUp, setShowFillUp] = useState(false);
@@ -23,8 +25,8 @@ export default function TripCostScreen() {
   // "The price + real-MPG loop".
   const [fillUpReports, setFillUpReports] = useState([]);
 
-  const gallonsNeeded = adjustedMpg ? distanceMiles / adjustedMpg : 0;
-  const estimatedCost = bestPrice ? gallonsNeeded * bestPrice.price : 0;
+  const unitsNeeded = adjustedEfficiency ? distanceMiles / adjustedEfficiency : 0;
+  const estimatedCost = bestPrice ? unitsNeeded * bestPrice.price : 0;
 
   return (
     <div className="screen">
@@ -32,11 +34,11 @@ export default function TripCostScreen() {
         <span className="label">This trip will cost about</span>
         <div className="hero-cost-row">
           <span className="hero-cost">${estimatedCost.toFixed(2)}</span>
-          <span className="hero-cost-gallons">{gallonsNeeded.toFixed(1)} gal</span>
+          <span className="hero-cost-gallons">{unitsNeeded.toFixed(1)} {priceUnitLabel}</span>
         </div>
         <span className="hero-cost-caption">
           {distanceMiles.toFixed(1)} mi
-          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/gal at ${bestPrice.name}` : ''}
+          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/${priceUnitLabel} at ${bestPrice.name}` : ''}
         </span>
       </div>
 

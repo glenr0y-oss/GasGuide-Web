@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useMemo } from 'react';
-import { getVehicleOptions, getAdjustedMpg } from '../data/mockVehicles';
+import { getVehicleOptions, getAdjustedEfficiency } from '../data/mockVehicles';
 
 const VehicleContext = createContext(null);
 
@@ -9,8 +9,8 @@ export function VehicleProvider({ children }) {
   const [activeFactorIds, setActiveFactorIds] = useState([]);
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0];
-  const adjustedMpg = useMemo(
-    () => getAdjustedMpg(selectedVehicle, activeFactorIds),
+  const adjustedEfficiency = useMemo(
+    () => getAdjustedEfficiency(selectedVehicle, activeFactorIds),
     [selectedVehicle, activeFactorIds]
   );
 
@@ -27,7 +27,7 @@ export function VehicleProvider({ children }) {
     setSelectedVehicleId,
     activeFactorIds,
     toggleFactor,
-    adjustedMpg,
+    adjustedEfficiency,
   };
 
   return <VehicleContext.Provider value={value}>{children}</VehicleContext.Provider>;

@@ -1,4 +1,4 @@
-import { conditionFactors } from '../data/mockVehicles';
+import { conditionFactors, getEfficiencyUnitLabel } from '../data/mockVehicles';
 import { useVehicle } from '../context/VehicleContext';
 import StatCard from '../components/StatCard';
 
@@ -10,8 +10,12 @@ export default function VehicleProfileScreen() {
     setSelectedVehicleId,
     activeFactorIds,
     toggleFactor,
-    adjustedMpg,
+    adjustedEfficiency,
   } = useVehicle();
+
+  const isEv = selectedVehicle.fuelKind === 'ev';
+  const unitLabel = getEfficiencyUnitLabel(selectedVehicle);
+  const stickerEfficiency = isEv ? selectedVehicle.efficiencyMiPerKwh : selectedVehicle.combinedMpg;
 
   const totalPenaltyPct = conditionFactors
     .filter((f) => activeFactorIds.includes(f.id))
@@ -28,16 +32,20 @@ export default function VehicleProfileScreen() {
 
       <div className="stats-row">
         <StatCard
-          label="Sticker MPG"
-          value={selectedVehicle.combinedMpg ?? '—'}
-          sublabel="what the window sticker says"
+          label={isEv ? 'Sticker efficiency' : 'Sticker MPG'}
+          value={stickerEfficiency ?? '—'}
+          sublabel={isEv ? `${unitLabel} — what the window sticker says` : 'what the window sticker says'}
         />
         <StatCard
-          label="Your real MPG"
-          value={adjustedMpg ? adjustedMpg.toFixed(1) : '—'}
+          label={isEv ? 'Your real efficiency' : 'Your real MPG'}
+          value={adjustedEfficiency ? adjustedEfficiency.toFixed(1) : '—'}
           sublabel={totalPenaltyPct ? `-${totalPenaltyPct}% for what you flagged below` : 'nothing flagged yet'}
         />
-        <StatCard label="Tank size" value={selectedVehicle.tankSizeGallons ?? '—'} sublabel="gallons" />
+        <StatCard
+          label={isEv ? 'Battery size' : 'Tank size'}
+          value={(isEv ? selectedVehicle.batteryKwh : selectedVehicle.tankSizeGallons) ?? '—'}
+          sublabel={isEv ? 'kWh' : 'gallons'}
+        />
       </div>
 
       <span className="label section-spacing">Your vehicles</span>
@@ -51,7 +59,10 @@ export default function VehicleProfileScreen() {
           <span className="vehicle-row-text">
             {vehicle.year} {vehicle.make} {vehicle.model}
           </span>
-          <span className="body-muted">{vehicle.combinedMpg ?? '—'} mpg</span>
+          <span className="body-muted">
+            {(vehicle.fuelKind === 'ev' ? vehicle.efficiencyMiPerKwh : vehicle.combinedMpg) ?? '—'}{' '}
+            {getEfficiencyUnitLabel(vehicle)}
+          </span>
         </button>
       ))}
 
