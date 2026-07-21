@@ -12,17 +12,30 @@
   --white: #ffffff;
   --border: #e7e2d6;
   --danger: #c1443c;
+  --tab-active-color: var(--forest); /* active tab bar icon/label */
 
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
+  --space-2xl: 40px;
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 22px;
   --radius-pill: 999px;
+
+  --font-heading: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Pro theme — applied via the .pro-theme class on .app-shell in App.jsx
+   once the user upgrades. Remaps existing tokens only; the free theme
+   above is untouched, so nothing changes until isPro is true. */
+.pro-theme {
+  --forest: var(--forest-dark);
+  --moss: var(--amber);
+  --tab-active-color: var(--amber);
 }
 
 * {

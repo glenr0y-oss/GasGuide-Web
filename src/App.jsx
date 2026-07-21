@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { VehicleProvider } from './context/VehicleContext';
+import { ProProvider, usePro } from './context/ProContext';
 import TripCostScreen from './screens/TripCostScreen';
 import StationMapScreen from './screens/StationMapScreen';
 import VehicleProfileScreen from './screens/VehicleProfileScreen';
@@ -19,30 +20,40 @@ export default function App() {
   const ActiveScreen = TABS.find((t) => t.id === activeTab).Component;
 
   return (
-    <VehicleProvider>
-      <div className="app-shell">
-        <header className="app-header">
-          <img src="/icon.png" alt="" className="app-logo" />
-          <span className="app-title">GasGuide</span>
-        </header>
+    <ProProvider>
+      <VehicleProvider>
+        <AppShell activeTab={activeTab} setActiveTab={setActiveTab} ActiveScreen={ActiveScreen} />
+      </VehicleProvider>
+    </ProProvider>
+  );
+}
 
-        <main className="app-content">
-          <ActiveScreen />
-        </main>
+function AppShell({ activeTab, setActiveTab, ActiveScreen }) {
+  const { isPro } = usePro();
 
-        <nav className="tab-bar">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-    </VehicleProvider>
+  return (
+    <div className={`app-shell ${isPro ? 'pro-theme' : ''}`}>
+      <header className="app-header">
+        <img src="/icon.png" alt="" className="app-logo" />
+        <span className="app-title">GasGuide</span>
+      </header>
+
+      <main className="app-content">
+        <ActiveScreen />
+      </main>
+
+      <nav className="tab-bar">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span className="tab-icon">{tab.icon}</span>
+            <span className="tab-label">{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
   );
 }

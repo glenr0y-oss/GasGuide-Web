@@ -25,8 +25,14 @@
 }
 
 .app-title {
+  font-family: var(--font-heading);
   font-size: 18px;
   font-weight: 700;
+}
+
+.pro-theme .app-header {
+  border-bottom: 2px solid var(--amber);
+  box-shadow: 0 2px 16px rgba(233, 180, 76, 0.35);
 }
 
 .app-content {
@@ -40,11 +46,11 @@
   padding-bottom: var(--space-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
 }
 
 .section-spacing {
-  margin-top: var(--space-lg);
+  margin-top: var(--space-2xl);
 }
 
 .tab-bar {
@@ -60,17 +66,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
+  min-height: 48px;
   padding: var(--space-sm) 0;
   background: none;
   border: none;
-  font-family: inherit;
+  font-family: var(--font-heading);
   color: var(--slate);
   cursor: pointer;
 }
 
 .tab-button.active {
-  color: var(--forest);
+  color: var(--tab-active-color);
 }
 
 .tab-icon {
@@ -92,10 +100,13 @@
 
 .chip {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  padding: var(--space-sm) var(--space-md);
+  padding: 0 var(--space-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--charcoal);
@@ -116,10 +127,13 @@
 }
 
 .factor-chip {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
-  padding: var(--space-sm) var(--space-md);
+  padding: 0 var(--space-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--slate);
@@ -134,6 +148,8 @@
 
 /* Inputs */
 .text-input {
+  box-sizing: border-box;
+  min-height: 48px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -155,10 +171,44 @@
   margin: 0 0 var(--space-sm);
 }
 
+/* Destination search results dropdown */
+.search-results {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-xs);
+  overflow: hidden;
+}
+
+.search-result-row {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--space-md);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--charcoal);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-row:last-child {
+  border-bottom: none;
+}
+
 .divider {
   height: 1px;
   background: var(--border);
-  margin: var(--space-lg) 0;
+  margin: var(--space-xl) 0;
 }
 
 /* Price badge */
@@ -214,21 +264,122 @@
   background: var(--forest);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .hero-name {
+  font-family: var(--font-heading);
   color: var(--cream);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
 }
 
 .hero-fuel {
+  font-family: var(--font-heading);
   color: var(--sage);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 2px 0 0;
+}
+
+/* Fill-up log modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 42, 32, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  z-index: 100;
+}
+
+.modal-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--charcoal);
+  margin: 0 0 var(--space-sm);
+}
+
+.modal-subtext {
+  font-size: 14px;
+  color: var(--slate);
+  margin: 0 0 var(--space-md);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.modal-save-button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  background: var(--forest);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.modal-skip-button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-sm);
+  background: none;
+  border: none;
+  color: var(--slate);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Trip Cost hero — the estimated cost is the focal point of the screen */
+.hero-cost-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-lg) 0;
+}
+
+.hero-cost {
+  font-family: var(--font-heading);
+  font-size: 64px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--forest);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-cost-caption {
+  font-size: 15px;
+  color: var(--slate);
 }
 
 .vehicle-row,
@@ -236,6 +387,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  min-height: 48px;
+  box-sizing: border-box;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -265,6 +418,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-xs);
+  min-height: 48px;
+  box-sizing: border-box;
   padding: var(--space-md) 0;
   margin-top: var(--space-md);
   border-radius: var(--radius-md);
@@ -274,13 +429,14 @@
   font-weight: 700;
   cursor: pointer;
   width: 100%;
-  font-family: inherit;
+  font-family: var(--font-heading);
 }
 
 .factor-row {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  min-height: 48px;
   padding: var(--space-sm) 0;
   cursor: pointer;
   background: none;
@@ -332,6 +488,25 @@
 .map-container {
   width: 100%;
   height: 42vh;
+}
+
+/* Destination picker map (embedded in Trip Cost, not the full Stations tab) */
+.picker-map {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: var(--space-sm);
+}
+
+.dest-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--forest);
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transform: rotate(-45deg);
 }
 
 .station-list {
@@ -397,16 +572,18 @@
 }
 
 .pro-title {
+  font-family: var(--font-heading);
   color: var(--cream);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
 }
 
 .pro-subtitle {
+  font-family: var(--font-heading);
   color: var(--sage);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 var(--space-sm);
 }
 
@@ -419,6 +596,11 @@
 }
 
 .upgrade-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  box-sizing: border-box;
   background: var(--amber);
   border: none;
   border-radius: var(--radius-pill);
@@ -427,6 +609,32 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: var(--space-md);
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 15px;
+}
+
+/* Pro welcome card — shown in place of the upgrade pitch once isPro is true */
+.pro-welcome-card {
+  background: var(--forest);
+  border: 1px solid var(--amber);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  box-shadow: 0 0 20px rgba(233, 180, 76, 0.25);
+}
+
+.pro-welcome-title {
+  font-family: var(--font-heading);
+  color: var(--amber);
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.pro-welcome-subtitle {
+  color: var(--cream);
+  font-size: 14px;
+  margin: 0;
 }

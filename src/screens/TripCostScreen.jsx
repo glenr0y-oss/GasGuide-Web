@@ -2,17 +2,14 @@ import { useState } from 'react';
 import { conditionFactors } from '../data/mockVehicles';
 import { getBestPrice } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
-import StatCard from '../components/StatCard';
-import PriceBadge from '../components/PriceBadge';
-
-// NEXT INTEGRATION: replace the plain-number distance field below with a
-// destination text input wired to a Directions API (Google Maps Platform or
-// Mapbox), which returns real distance + ETA for a route. See CLAUDE.md.
+import DestinationPicker from '../components/DestinationPicker';
+import FillUpModal from '../components/FillUpModal';
 
 export default function TripCostScreen() {
   const bestPrice = getBestPrice();
   const {
     vehicles,
+    selectedVehicle,
     selectedVehicleId,
     setSelectedVehicleId,
     activeFactorIds,
@@ -20,8 +17,11 @@ export default function TripCostScreen() {
     adjustedMpg,
   } = useVehicle();
 
-  const [distanceInput, setDistanceInput] = useState('42');
-  const distanceMiles = parseFloat(distanceInput) || 0;
+  const [distanceMiles, setDistanceMiles] = useState(0);
+  const [showFillUp, setShowFillUp] = useState(false);
+  // Replace with a real backend call once one exists — see CLAUDE.md
+  // "The price + real-MPG loop".
+  const [fillUpReports, setFillUpReports] = useState([]);
 
   const gallonsNeeded = adjustedMpg ? distanceMiles / adjustedMpg : 0;
   const estimatedCost = bestPrice ? gallonsNeeded * bestPrice.price : 0;
@@ -41,14 +41,9 @@ export default function TripCostScreen() {
         ))}
       </div>
 
-      <span className="label section-spacing">2. Trip distance (miles)</span>
-      <input
-        className="text-input"
-        value={distanceInput}
-        onChange={(e) => setDistanceInput(e.target.value)}
-        inputMode="decimal"
-        placeholder="e.g. 42"
-      />
+      <span className="label section-spacing">2. Where are you headed?</span>
+      <p className="hint">Search an address, then drag the pin to the exact spot.</p>
+      <DestinationPicker onDistanceChange={setDistanceMiles} />
 
       <span className="label section-spacing">3. Anything affecting mileage?</span>
       <p className="hint">Optional — you know your car best.</p>
@@ -66,23 +61,27 @@ export default function TripCostScreen() {
 
       <div className="divider" />
 
-      <div className="price-row">
-        <span className="label">Using nearby price</span>
-        {bestPrice ? <PriceBadge price={bestPrice.price} label={bestPrice.name} /> : null}
+      <div className="hero-cost-card">
+        <span className="label">This trip will cost about</span>
+        <span className="hero-cost">${estimatedCost.toFixed(2)}</span>
+        <span className="hero-cost-caption">
+          {distanceMiles.toFixed(1)} mi · {gallonsNeeded.toFixed(1)} gal
+          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/gal at ${bestPrice.name}` : ''}
+        </span>
       </div>
 
-      <div className="stats-row">
-        <StatCard
-          label="Gallons needed"
-          value={gallonsNeeded.toFixed(1)}
-          sublabel={adjustedMpg ? `at ${adjustedMpg.toFixed(1)} mpg` : 'select a vehicle'}
+      <button className="add-vehicle-button section-spacing" onClick={() => setShowFillUp(true)}>
+        + Log a fill-up
+      </button>
+
+      {showFillUp && (
+        <FillUpModal
+          vehicle={selectedVehicle}
+          distanceMiles={distanceMiles}
+          onSave={(report) => setFillUpReports((reports) => [...reports, report])}
+          onClose={() => setShowFillUp(false)}
         />
-        <StatCard
-          label="Estimated cost"
-          value={`$${estimatedCost.toFixed(2)}`}
-          sublabel={`for ${distanceMiles || 0} mi`}
-        />
-      </div>
+      )}
     </div>
   );
 }

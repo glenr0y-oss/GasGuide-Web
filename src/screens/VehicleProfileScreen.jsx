@@ -27,11 +27,15 @@ export default function VehicleProfileScreen() {
       </div>
 
       <div className="stats-row">
-        <StatCard label="Rated MPG" value={selectedVehicle.combinedMpg ?? '—'} sublabel="EPA combined" />
         <StatCard
-          label="Adjusted MPG"
+          label="Sticker MPG"
+          value={selectedVehicle.combinedMpg ?? '—'}
+          sublabel="what the window sticker says"
+        />
+        <StatCard
+          label="Your real MPG"
           value={adjustedMpg ? adjustedMpg.toFixed(1) : '—'}
-          sublabel={totalPenaltyPct ? `-${totalPenaltyPct}% applied` : 'no factors active'}
+          sublabel={totalPenaltyPct ? `-${totalPenaltyPct}% for what you flagged below` : 'nothing flagged yet'}
         />
         <StatCard label="Tank size" value={selectedVehicle.tankSizeGallons ?? '—'} sublabel="gallons" />
       </div>
