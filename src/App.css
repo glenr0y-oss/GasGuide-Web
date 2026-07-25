@@ -292,7 +292,10 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
-  z-index: 100;
+  /* Above Leaflet's own controls (.leaflet-top/.leaflet-bottom sit at
+     z-index: 1000 in leaflet.css), otherwise the embedded destination-
+     picker map's zoom buttons float on top of this modal and eat clicks. */
+  z-index: 1100;
 }
 
 .modal-card {
