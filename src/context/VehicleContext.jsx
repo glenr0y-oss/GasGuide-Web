@@ -4,7 +4,7 @@ import { getVehicleOptions, getAdjustedEfficiency } from '../data/mockVehicles';
 const VehicleContext = createContext(null);
 
 export function VehicleProvider({ children }) {
-  const vehicles = getVehicleOptions();
+  const [vehicles, setVehicles] = useState(() => getVehicleOptions());
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicles[0].id);
   // Keyed by vehicle id — condition factors are specific to one vehicle's
   // wear and tear, so flagging an issue on one car must not silently carry
@@ -34,6 +34,11 @@ export function VehicleProvider({ children }) {
     }));
   }
 
+  function addVehicle(vehicle) {
+    setVehicles((current) => [...current, vehicle]);
+    setSelectedVehicleId(vehicle.id);
+  }
+
   function toggleFactor(id) {
     setFactorsByVehicle((current) => {
       const currentForVehicle = current[selectedVehicleId] ?? [];
@@ -46,6 +51,7 @@ export function VehicleProvider({ children }) {
 
   const value = {
     vehicles,
+    addVehicle,
     selectedVehicle,
     selectedVehicleId,
     setSelectedVehicleId,

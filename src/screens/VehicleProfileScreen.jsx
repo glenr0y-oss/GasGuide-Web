@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { conditionFactors, getEfficiencyUnitLabel } from '../data/mockVehicles';
 import { useVehicle } from '../context/VehicleContext';
 import StatCard from '../components/StatCard';
+import AddVehicleModal from '../components/AddVehicleModal';
 
 export default function VehicleProfileScreen() {
   const {
     vehicles,
+    addVehicle,
     selectedVehicle,
     selectedVehicleId,
     setSelectedVehicleId,
@@ -13,6 +16,7 @@ export default function VehicleProfileScreen() {
     adjustedEfficiency,
     realEfficiency,
   } = useVehicle();
+  const [showAddVehicle, setShowAddVehicle] = useState(false);
 
   const isEv = selectedVehicle.fuelKind === 'ev';
   const unitLabel = getEfficiencyUnitLabel(selectedVehicle);
@@ -75,16 +79,13 @@ export default function VehicleProfileScreen() {
         </button>
       ))}
 
-      <button
-        className="add-vehicle-button"
-        onClick={() =>
-          alert(
-            'This is where a real build calls the NHTSA vPIC API (decode a VIN, or search by year/make/model) to auto-fill specs instead of a hardcoded list. See CLAUDE.md.'
-          )
-        }
-      >
+      <button className="add-vehicle-button" onClick={() => setShowAddVehicle(true)}>
         + Add a vehicle
       </button>
+
+      {showAddVehicle && (
+        <AddVehicleModal onAdd={addVehicle} onClose={() => setShowAddVehicle(false)} />
+      )}
 
       <span className="label section-spacing">Condition factors</span>
       <p className="hint">
