@@ -6,7 +6,7 @@
 // Swap getVehicleOptions() below for real fetch calls once you're ready —
 // every screen already reads through this function, not the array directly.
 
-export const mockVehicles = [
+const mockVehicles = [
   { id: 'v1', make: 'Toyota', model: 'Camry', year: 2022, fuelKind: 'gas', combinedMpg: 32, tankSizeGallons: 15.8, fuelType: 'Regular' },
   { id: 'v2', make: 'Honda', model: 'Civic', year: 2021, fuelKind: 'gas', combinedMpg: 35, tankSizeGallons: 12.4, fuelType: 'Regular' },
   { id: 'v3', make: 'Ford', model: 'F-150', year: 2023, fuelKind: 'gas', combinedMpg: 20, tankSizeGallons: 26.0, fuelType: 'Regular' },

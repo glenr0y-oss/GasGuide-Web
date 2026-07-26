@@ -7,7 +7,7 @@
 // screen is pulling from your backend. lastReportMinutesAgo drives the
 // "reported 12m ago" freshness label in the UI.
 
-export const mockStations = [
+const mockStations = [
   { id: 's1', name: 'Cedar Street Fuel', address: '142 Cedar St', lat: 41.70, lng: -72.68, price: 3.29, lastReportMinutesAgo: 12, stationKind: 'gas' },
   { id: 's2', name: 'Northgate Gas', address: '87 Northgate Ave', lat: 41.706, lng: -72.686, price: 3.19, lastReportMinutesAgo: 40, stationKind: 'gas' },
   { id: 's3', name: 'Riverside Fuel Stop', address: '310 Riverside Dr', lat: 41.694, lng: -72.672, price: 3.35, lastReportMinutesAgo: 5, stationKind: 'gas' },
