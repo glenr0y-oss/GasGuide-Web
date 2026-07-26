@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { conditionFactors, getEfficiencyUnitLabel } from '../data/mockVehicles';
-import { getBestPrice, getPriceUnitLabel } from '../data/mockStations';
+import { getBestPrice, getNearbyStations, getPriceUnitLabel } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
+import { usePreferences } from '../context/PreferencesContext';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { haversineMiles } from '../utils/geo';
 import DestinationPicker from '../components/DestinationPicker';
 import FillUpModal from '../components/FillUpModal';
 import PriceBadge from '../components/PriceBadge';
+
+// How close the user's location needs to be to a known station before
+// GasGuide treats it as "at the pump" and offers the fill-up prompt.
+const AT_PUMP_THRESHOLD_MILES = 0.15;
 
 export default function TripCostScreen() {
   const {
@@ -18,6 +25,8 @@ export default function TripCostScreen() {
     effectiveEfficiency,
     recordFillUp,
   } = useVehicle();
+  const { preferences } = usePreferences();
+  const { location: userLocation, status: locationStatus } = useGeolocation();
 
   const bestPrice = getBestPrice(selectedVehicle.fuelKind);
   const priceUnitLabel = getPriceUnitLabel(selectedVehicle.fuelKind);
@@ -25,6 +34,27 @@ export default function TripCostScreen() {
 
   const [distanceMiles, setDistanceMiles] = useState(0);
   const [showFillUp, setShowFillUp] = useState(false);
+  // Stations already prompted for this session, so closing the modal
+  // doesn't just reopen it on the next render while still parked there.
+  const [promptedStationIds, setPromptedStationIds] = useState([]);
+
+  const nearbyStation = useMemo(() => {
+    if (!preferences.askAtPump || !userLocation) return null;
+    return (
+      getNearbyStations(selectedVehicle.fuelKind).find(
+        (station) =>
+          haversineMiles(userLocation.lat, userLocation.lng, station.lat, station.lng) <=
+          AT_PUMP_THRESHOLD_MILES
+      ) ?? null
+    );
+  }, [preferences.askAtPump, userLocation, selectedVehicle.fuelKind]);
+
+  useEffect(() => {
+    if (nearbyStation && !promptedStationIds.includes(nearbyStation.id)) {
+      setShowFillUp(true);
+      setPromptedStationIds((ids) => [...ids, nearbyStation.id]);
+    }
+  }, [nearbyStation, promptedStationIds]);
 
   const unitsNeeded = effectiveEfficiency ? distanceMiles / effectiveEfficiency : 0;
   const estimatedCost = bestPrice ? unitsNeeded * bestPrice.price : 0;
@@ -65,7 +95,11 @@ export default function TripCostScreen() {
 
       <span className="label section-spacing">2. Where are you headed?</span>
       <p className="hint">Search an address, then drag the pin to the exact spot.</p>
-      <DestinationPicker onDistanceChange={setDistanceMiles} />
+      <DestinationPicker
+        onDistanceChange={setDistanceMiles}
+        userLocation={userLocation}
+        locationStatus={locationStatus}
+      />
 
       <span className="label section-spacing">3. Anything affecting mileage?</span>
       <p className="hint">Optional — you know your car best.</p>

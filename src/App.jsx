@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { VehicleProvider } from './context/VehicleContext';
 import { ProProvider, usePro } from './context/ProContext';
+import { PreferencesProvider } from './context/PreferencesContext';
 import TripCostScreen from './screens/TripCostScreen';
 import StationMapScreen from './screens/StationMapScreen';
 import VehicleProfileScreen from './screens/VehicleProfileScreen';
@@ -21,9 +22,11 @@ export default function App() {
 
   return (
     <ProProvider>
-      <VehicleProvider>
-        <AppShell activeTab={activeTab} setActiveTab={setActiveTab} ActiveScreen={ActiveScreen} />
-      </VehicleProvider>
+      <PreferencesProvider>
+        <VehicleProvider>
+          <AppShell activeTab={activeTab} setActiveTab={setActiveTab} ActiveScreen={ActiveScreen} />
+        </VehicleProvider>
+      </PreferencesProvider>
     </ProProvider>
   );
 }

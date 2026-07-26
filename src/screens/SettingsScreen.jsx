@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { usePro } from '../context/ProContext';
+import { usePreferences } from '../context/PreferencesContext';
 
 const PRO_FEATURES = [
   'OBD-II real-time diagnostics (auto-detects mileage-hurting issues)',
@@ -10,6 +12,8 @@ const PRO_FEATURES = [
 
 export default function SettingsScreen() {
   const { isPro, togglePro } = usePro();
+  const { preferences, togglePreference } = usePreferences();
+  const [stubRow, setStubRow] = useState(null);
 
   function handleTogglePro() {
     // NEXT INTEGRATION: dev tool only, for previewing the Pro theme. A
@@ -62,22 +66,61 @@ export default function SettingsScreen() {
       )}
 
       <span className="label section-spacing">Preferences</span>
-      <SettingsRow label="Ask what I paid at the pump" />
-      <SettingsRow label="Let GasGuide find stations near me" />
-      <SettingsRow label="Miles & gallons" />
+      <ToggleRow
+        label="Ask what I paid at the pump"
+        checked={preferences.askAtPump}
+        onToggle={() => togglePreference('askAtPump')}
+      />
+      <ToggleRow
+        label="Let GasGuide find stations near me"
+        checked={preferences.findStationsNearMe}
+        onToggle={() => togglePreference('findStationsNearMe')}
+      />
+      <SettingsRow label="Miles & gallons" onClick={() => setStubRow('Miles & gallons')} />
 
       <span className="label section-spacing">About</span>
-      <SettingsRow label="Privacy policy" />
-      <SettingsRow label="Terms of service" />
+      <SettingsRow label="Privacy policy" onClick={() => setStubRow('Privacy policy')} />
+      <SettingsRow label="Terms of service" onClick={() => setStubRow('Terms of service')} />
+
+      {stubRow && (
+        <div className="modal-backdrop" onClick={() => setStubRow(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <p className="modal-title">{stubRow}</p>
+            <p className="modal-subtext">Coming soon.</p>
+            <div className="modal-actions">
+              <button className="modal-save-button" onClick={() => setStubRow(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function SettingsRow({ label }) {
+function SettingsRow({ label, onClick }) {
   return (
-    <button className="settings-row">
+    <button className="settings-row" onClick={onClick}>
       <span className="settings-row-text">{label}</span>
       <span>›</span>
     </button>
+  );
+}
+
+function ToggleRow({ label, checked, onToggle }) {
+  return (
+    <div className="toggle-row">
+      <span className="toggle-row-text">{label}</span>
+      <button
+        className={`switch ${checked ? 'on' : ''}`}
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={onToggle}
+      >
+        <span className="switch-knob" />
+      </button>
+    </div>
   );
 }

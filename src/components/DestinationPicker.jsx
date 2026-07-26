@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useGeolocation } from '../hooks/useGeolocation';
 import { haversineMiles } from '../utils/geo';
 
 // Same fallback center StationMapScreen.jsx uses, so the map never renders
@@ -28,8 +27,7 @@ function RecenterMap({ lat, lng }) {
   return null;
 }
 
-export default function DestinationPicker({ onDistanceChange }) {
-  const { location: userLocation, status: locationStatus } = useGeolocation();
+export default function DestinationPicker({ onDistanceChange, userLocation, locationStatus }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [pin, setPin] = useState(null);

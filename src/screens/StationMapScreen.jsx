@@ -1,8 +1,11 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getNearbyStations, getPriceUnitLabel } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
+import { usePreferences } from '../context/PreferencesContext';
+import { useGeolocation } from '../hooks/useGeolocation';
 import PriceBadge from '../components/PriceBadge';
 
 // Uses OpenStreetMap tiles via Leaflet — genuinely real, no API key ever
@@ -19,12 +22,27 @@ function makePin(isCheapest) {
   });
 }
 
+function RecenterOnLocation({ lat, lng }) {
+  const map = useMap();
+  useEffect(() => {
+    if (lat != null && lng != null) {
+      map.setView([lat, lng], 13);
+    }
+  }, [lat, lng, map]);
+  return null;
+}
+
 export default function StationMapScreen() {
   const { selectedVehicle } = useVehicle();
+  const { preferences } = usePreferences();
+  const { location: userLocation } = useGeolocation();
   const stations = getNearbyStations(selectedVehicle.fuelKind);
   const priceUnitLabel = getPriceUnitLabel(selectedVehicle.fuelKind);
   const cheapest = stations[0];
-  const center = [stations[0]?.lat ?? 41.7, stations[0]?.lng ?? -72.68];
+  const useLiveLocation = preferences.findStationsNearMe && userLocation;
+  const center = useLiveLocation
+    ? [userLocation.lat, userLocation.lng]
+    : [stations[0]?.lat ?? 41.7, stations[0]?.lng ?? -72.68];
 
   return (
     <div>
@@ -45,6 +63,7 @@ export default function StationMapScreen() {
               </Popup>
             </Marker>
           ))}
+          {useLiveLocation && <RecenterOnLocation lat={userLocation.lat} lng={userLocation.lng} />}
         </MapContainer>
       </div>
 
