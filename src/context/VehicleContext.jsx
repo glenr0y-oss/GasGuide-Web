@@ -1,11 +1,39 @@
-import { createContext, useContext, useState, useMemo } from 'react';
+import { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { getVehicleOptions, getAdjustedEfficiency } from '../data/mockVehicles';
+
+const ADDED_VEHICLES_KEY = 'gasguide.addedVehicles';
+const SELECTED_VEHICLE_KEY = 'gasguide.selectedVehicleId';
+
+function loadAddedVehicles() {
+  try {
+    const raw = localStorage.getItem(ADDED_VEHICLES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
 const VehicleContext = createContext(null);
 
 export function VehicleProvider({ children }) {
-  const [vehicles, setVehicles] = useState(() => getVehicleOptions());
-  const [selectedVehicleId, setSelectedVehicleId] = useState(vehicles[0].id);
+  // The seed fleet always comes fresh from mockVehicles.js; only vehicles the
+  // user has added via VIN lookup need to survive a reload, so just those go
+  // to localStorage rather than duplicating the whole catalog there.
+  const [addedVehicles, setAddedVehicles] = useState(loadAddedVehicles);
+  const vehicles = useMemo(() => [...getVehicleOptions(), ...addedVehicles], [addedVehicles]);
+
+  useEffect(() => {
+    localStorage.setItem(ADDED_VEHICLES_KEY, JSON.stringify(addedVehicles));
+  }, [addedVehicles]);
+
+  const [selectedVehicleId, setSelectedVehicleIdState] = useState(
+    () => localStorage.getItem(SELECTED_VEHICLE_KEY) || vehicles[0].id
+  );
+
+  function setSelectedVehicleId(id) {
+    setSelectedVehicleIdState(id);
+    localStorage.setItem(SELECTED_VEHICLE_KEY, id);
+  }
   // Keyed by vehicle id — condition factors are specific to one vehicle's
   // wear and tear, so flagging an issue on one car must not silently carry
   // that penalty over when the user switches to a different vehicle.
@@ -35,7 +63,7 @@ export function VehicleProvider({ children }) {
   }
 
   function addVehicle(vehicle) {
-    setVehicles((current) => [...current, vehicle]);
+    setAddedVehicles((current) => [...current, vehicle]);
     setSelectedVehicleId(vehicle.id);
   }
 
