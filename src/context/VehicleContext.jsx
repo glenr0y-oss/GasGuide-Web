@@ -3,6 +3,8 @@ import { getVehicleOptions, getAdjustedEfficiency } from '../data/mockVehicles';
 
 const ADDED_VEHICLES_KEY = 'gasguide.addedVehicles';
 const SELECTED_VEHICLE_KEY = 'gasguide.selectedVehicleId';
+const FACTORS_KEY = 'gasguide.factorsByVehicle';
+const REAL_EFFICIENCY_KEY = 'gasguide.realEfficiencyByVehicle';
 
 function loadAddedVehicles() {
   try {
@@ -10,6 +12,15 @@ function loadAddedVehicles() {
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
+  }
+}
+
+function loadJson(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
   }
 }
 
@@ -37,10 +48,20 @@ export function VehicleProvider({ children }) {
   // Keyed by vehicle id — condition factors are specific to one vehicle's
   // wear and tear, so flagging an issue on one car must not silently carry
   // that penalty over when the user switches to a different vehicle.
-  const [factorsByVehicle, setFactorsByVehicle] = useState({});
+  const [factorsByVehicle, setFactorsByVehicle] = useState(() => loadJson(FACTORS_KEY, {}));
   // Also keyed by vehicle id — the real MPG a fill-up report produces for
   // one car has nothing to say about a different one.
-  const [realEfficiencyByVehicle, setRealEfficiencyByVehicle] = useState({});
+  const [realEfficiencyByVehicle, setRealEfficiencyByVehicle] = useState(() =>
+    loadJson(REAL_EFFICIENCY_KEY, {})
+  );
+
+  useEffect(() => {
+    localStorage.setItem(FACTORS_KEY, JSON.stringify(factorsByVehicle));
+  }, [factorsByVehicle]);
+
+  useEffect(() => {
+    localStorage.setItem(REAL_EFFICIENCY_KEY, JSON.stringify(realEfficiencyByVehicle));
+  }, [realEfficiencyByVehicle]);
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0];
   const activeFactorIds = factorsByVehicle[selectedVehicleId] ?? [];
