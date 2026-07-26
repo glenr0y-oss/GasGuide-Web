@@ -214,7 +214,6 @@
 /* Price badge */
 .price-badge {
   display: inline-flex;
-  align-self: flex-start;
   align-items: baseline;
   gap: var(--space-xs);
   background: var(--amber);

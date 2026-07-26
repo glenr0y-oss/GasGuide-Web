@@ -11,6 +11,7 @@ export default function VehicleProfileScreen() {
     activeFactorIds,
     toggleFactor,
     adjustedEfficiency,
+    realEfficiency,
   } = useVehicle();
 
   const isEv = selectedVehicle.fuelKind === 'ev';
@@ -38,8 +39,16 @@ export default function VehicleProfileScreen() {
         />
         <StatCard
           label={isEv ? 'Your real efficiency' : 'Your real MPG'}
-          value={adjustedEfficiency ? adjustedEfficiency.toFixed(1) : '—'}
-          sublabel={totalPenaltyPct ? `-${totalPenaltyPct}% for what you flagged below` : 'nothing flagged yet'}
+          value={
+            realEfficiency ? realEfficiency.toFixed(1) : adjustedEfficiency ? adjustedEfficiency.toFixed(1) : '—'
+          }
+          sublabel={
+            realEfficiency
+              ? 'measured from your last fill-up'
+              : totalPenaltyPct
+                ? `-${totalPenaltyPct}% for what you flagged below`
+                : 'nothing flagged yet'
+          }
         />
         <StatCard
           label={isEv ? 'Battery size' : 'Tank size'}

@@ -3,6 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getNearbyStations, getPriceUnitLabel } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
+import PriceBadge from '../components/PriceBadge';
 
 // Uses OpenStreetMap tiles via Leaflet — genuinely real, no API key ever
 // required, unlike Google Maps' JS SDK. Good enough to ship with as-is;
@@ -56,9 +57,13 @@ export default function StationMapScreen() {
               <div className="body-muted">{item.address}</div>
             </div>
             <div className="station-price-col">
-              <span className="stat" style={{ fontSize: 18 }}>
-                ${item.price.toFixed(2)}
-              </span>
+              {item.id === cheapest?.id ? (
+                <PriceBadge price={item.price} />
+              ) : (
+                <span className="stat" style={{ fontSize: 18 }}>
+                  ${item.price.toFixed(2)}
+                </span>
+              )}
               <span className="body-muted">{item.lastReportMinutesAgo}m ago</span>
             </div>
           </div>

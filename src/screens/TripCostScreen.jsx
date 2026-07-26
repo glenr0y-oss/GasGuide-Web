@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { conditionFactors } from '../data/mockVehicles';
+import { conditionFactors, getEfficiencyUnitLabel } from '../data/mockVehicles';
 import { getBestPrice, getPriceUnitLabel } from '../data/mockStations';
 import { useVehicle } from '../context/VehicleContext';
 import DestinationPicker from '../components/DestinationPicker';
 import FillUpModal from '../components/FillUpModal';
+import PriceBadge from '../components/PriceBadge';
 
 export default function TripCostScreen() {
   const {
@@ -13,19 +14,19 @@ export default function TripCostScreen() {
     setSelectedVehicleId,
     activeFactorIds,
     toggleFactor,
-    adjustedEfficiency,
+    realEfficiency,
+    effectiveEfficiency,
+    recordFillUp,
   } = useVehicle();
 
   const bestPrice = getBestPrice(selectedVehicle.fuelKind);
   const priceUnitLabel = getPriceUnitLabel(selectedVehicle.fuelKind);
+  const efficiencyUnitLabel = getEfficiencyUnitLabel(selectedVehicle);
 
   const [distanceMiles, setDistanceMiles] = useState(0);
   const [showFillUp, setShowFillUp] = useState(false);
-  // Replace with a real backend call once one exists — see CLAUDE.md
-  // "The price + real-MPG loop".
-  const [fillUpReports, setFillUpReports] = useState([]);
 
-  const unitsNeeded = adjustedEfficiency ? distanceMiles / adjustedEfficiency : 0;
+  const unitsNeeded = effectiveEfficiency ? distanceMiles / effectiveEfficiency : 0;
   const estimatedCost = bestPrice ? unitsNeeded * bestPrice.price : 0;
 
   return (
@@ -38,8 +39,13 @@ export default function TripCostScreen() {
         </div>
         <span className="hero-cost-caption">
           {distanceMiles.toFixed(1)} mi
-          {bestPrice ? ` · $${bestPrice.price.toFixed(2)}/${priceUnitLabel} at ${bestPrice.name}` : ''}
+          {realEfficiency ? ` · using your real ${efficiencyUnitLabel}` : ''}
         </span>
+        {bestPrice && (
+          <div className="price-row">
+            <PriceBadge price={bestPrice.price} label={`per ${priceUnitLabel} at ${bestPrice.name}`} />
+          </div>
+        )}
       </div>
 
       <div className="divider" />
@@ -82,7 +88,7 @@ export default function TripCostScreen() {
       {showFillUp && (
         <FillUpModal
           vehicle={selectedVehicle}
-          onSave={(report) => setFillUpReports((reports) => [...reports, report])}
+          onSave={recordFillUp}
           onClose={() => setShowFillUp(false)}
         />
       )}
