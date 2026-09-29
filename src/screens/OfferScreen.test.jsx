@@ -136,3 +136,26 @@ describe('OfferScreen', () => {
     expect(screen.getByText(/per gal · your price for now/)).toBeTruthy();
   });
 });
+
+describe('when the browser blocks storage', () => {
+  it('still works for the session instead of crashing', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new DOMException('Access denied', 'SecurityError');
+      },
+    });
+    try {
+      renderScreen();
+      type('Payout', '12');
+      type('Miles', '4.5');
+      type('Minutes', '18');
+      type('Miles back to your zone', '1');
+      expect(within(verdictCard()).getByText('Take it')).toBeTruthy();
+    } finally {
+      cleanup();
+      Object.defineProperty(globalThis, 'localStorage', original);
+    }
+  });
+});
