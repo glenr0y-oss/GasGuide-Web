@@ -14,6 +14,15 @@
   --danger: #c1443c;
   --tab-active-color: var(--forest); /* active tab bar icon/label */
 
+  /* "Worth it?" verdict card. Built from the palette above — amber stays
+     reserved for prices, so Borderline uses sage, not a yellow. */
+  --verdict-take-bg: var(--forest);
+  --verdict-take-fg: var(--cream);
+  --verdict-borderline-bg: var(--sage);
+  --verdict-borderline-fg: var(--forest-dark);
+  --verdict-decline-bg: var(--danger);
+  --verdict-decline-fg: var(--white);
+
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;

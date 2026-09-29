@@ -3,7 +3,7 @@
 // it:
 //   - NHTSA vPIC decodes a VIN into year/make/model/fuel type.
 //     https://vpic.nhtsa.dot.gov/api/
-//   - fueleconomy.gov supplies the EPA combined MPG (or mi/kWh for an EV)
+//   - fueleconomy.gov supplies the EPA combined and city MPG (or mi/kWh for an EV)
 //     for that vehicle, matched best-effort against the decoded identity.
 //     https://www.fueleconomy.gov/ws/rest/
 
@@ -52,7 +52,7 @@ async function fetchMenu(path, params) {
  * has no VIN lookup of its own, so this walks its year -> make -> model ->
  * options menus, matching on the decoded model name and (if available)
  * cylinder count / displacement to disambiguate trims.
- * @returns {Promise<{fuelKind: 'gas'|'ev', fuelType: string|null, combinedMpg: number|null, efficiencyMiPerKwh: number|null}|null>}
+ * @returns {Promise<{fuelKind: 'gas'|'ev', fuelType: string|null, combinedMpg: number|null, efficiencyMiPerKwh: number|null, cityMpg: number|null, cityMiPerKwh: number|null}|null>}
  */
 export async function findEpaEfficiency({ make, model, year, cylinders, displacementL }) {
   const models = await fetchMenu('model', { year, make });
@@ -77,10 +77,15 @@ export async function findEpaEfficiency({ make, model, year, cylinders, displace
   const v = await res.json();
   const isEv = v.atvType === 'EV' || v.fuelType1 === 'Electricity';
   const combE = parseFloat(v.combE);
+  const cityE = parseFloat(v.cityE);
   return {
     fuelKind: isEv ? 'ev' : 'gas',
     fuelType: v.fuelType1 || null,
     combinedMpg: isEv ? null : parseFloat(v.comb08) || null,
     efficiencyMiPerKwh: isEv && combE ? Math.round((100 / combE) * 10) / 10 : null,
+    // City figures feed the "Worth it?" verdict: delivery driving is
+    // stop-and-go, so city is the honest fallback before real MPG exists.
+    cityMpg: isEv ? null : parseFloat(v.city08) || null,
+    cityMiPerKwh: isEv && cityE ? Math.round((100 / cityE) * 10) / 10 : null,
   };
 }

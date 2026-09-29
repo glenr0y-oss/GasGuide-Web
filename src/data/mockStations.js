@@ -35,29 +35,9 @@ export function getPriceUnitLabel(stationKind) {
 }
 
 // --- The crowdsourced price + real-MPG loop -------------------------------
-// Mechanically: a geofence detects a stop at a listed station -> once the
-// user is back on the road, a single low-friction prompt asks what they
-// paid per gallon -> that one answer does two things at once:
-//   1. Feeds the community price map (anonymized, aggregated)
-//   2. Combined with miles driven since the last fill-up, produces real
-//      MPG for that specific vehicle instance
-// This file only models the math. The geofence trigger itself belongs in
-// a native module (see CLAUDE.md "Next integration" section) since it
-// needs expo-location's background region-monitoring APIs, which only run
-// inside a real device build, not Expo Go.
-
-/**
- * @param {number} pricePerUnit - what the user says they paid, per gallon
- *   or per kWh depending on the vehicle's fuelKind
- * @param {number} milesSinceLastFillUp - from trip tracking (GPS)
- * @param {number} unitsPurchased - gallons or kWh, user-entered or derived
- *   from a total-spend field divided by pricePerUnit
- * @returns {{ realEfficiency: number|null, pricePerUnit: number }}
- */
-export function processFillUpReport({ pricePerUnit, milesSinceLastFillUp, unitsPurchased }) {
-  const realEfficiency =
-    milesSinceLastFillUp && unitsPurchased
-      ? Math.round((milesSinceLastFillUp / unitsPurchased) * 10) / 10
-      : null;
-  return { realEfficiency, pricePerUnit };
-}
+// One fill-up answer does two things: it feeds the community price map
+// (anonymized, aggregated — needs the backend, not built yet) and, logged
+// with the odometer and a full-tank flag, it measures this vehicle's real
+// MPG. That math lives in src/lib/fillUps.js (validateFillUp and
+// computeRealEfficiency), shared by the fill-up modal, the Vehicle tab and
+// the "Worth it?" verdict.

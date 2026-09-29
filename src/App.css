@@ -303,6 +303,8 @@
   padding: var(--space-lg);
   width: 100%;
   max-width: 360px;
+  max-height: calc(100dvh - 2 * var(--space-lg));
+  overflow-y: auto;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -490,8 +492,21 @@
 }
 
 .checkbox.checked {
+  position: relative;
   background: var(--moss);
   border-color: var(--moss);
+}
+
+.checkbox.checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0;
+  width: 5px;
+  height: 10px;
+  border: solid var(--white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .radio {
@@ -712,4 +727,425 @@
   color: var(--cream);
   font-size: 14px;
   margin: 0;
+}
+
+/* Labeled inputs — fill-up modal and the "Worth it?" screen */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  min-width: 0;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--slate);
+}
+
+.field-error {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.field-warning {
+  font-size: 13px;
+  color: var(--forest-dark);
+  background: var(--cream);
+  border-left: 3px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--space-xs) 0 0;
+}
+
+.input-affix {
+  position: relative;
+  display: block;
+}
+
+.input-affix .affix {
+  position: absolute;
+  left: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--slate);
+  pointer-events: none;
+}
+
+.input-affix.has-prefix .text-input {
+  padding-left: 30px;
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  min-height: 48px;
+  margin-top: var(--space-md);
+  padding: var(--space-sm) 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+}
+
+.check-row .checkbox {
+  margin-top: 2px;
+}
+
+.check-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.check-row-hint {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--slate);
+}
+
+.text-button {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  background: none;
+  border: none;
+  color: var(--moss);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.text-button.muted {
+  color: var(--slate);
+}
+
+.link-button {
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  background: none;
+  border: none;
+  color: var(--slate);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-button.danger {
+  color: var(--danger);
+}
+
+.stat-inline {
+  font-weight: 700;
+  color: var(--forest);
+  font-variant-numeric: tabular-nums;
+}
+
+/* "Worth it?" verdict — pinned to the top like the Trip Cost hero, so the
+   answer stays visible while the phone keyboard covers the bottom half. */
+.verdict-card {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 24px -14px rgba(18, 42, 32, 0.55);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.verdict-take {
+  background: var(--verdict-take-bg);
+  color: var(--verdict-take-fg);
+}
+
+.verdict-borderline {
+  background: var(--verdict-borderline-bg);
+  color: var(--verdict-borderline-fg);
+}
+
+.verdict-decline {
+  background: var(--verdict-decline-bg);
+  color: var(--verdict-decline-fg);
+}
+
+.verdict-empty {
+  background: var(--white);
+  color: var(--charcoal);
+  border: 1px dashed var(--forest);
+  box-shadow: none;
+}
+
+.verdict-kicker {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+
+.verdict-prompt {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.verdict-word {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.verdict-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.verdict-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.verdict-stat-value {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.verdict-stat-unit {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.verdict-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.verdict-reasons {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.offer-grid .field {
+  margin-top: 0;
+}
+
+.source-line {
+  margin: var(--space-xs) 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--slate);
+}
+
+.price-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.price-line .field-warning {
+  flex-basis: 100%;
+}
+
+.price-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.price-edit .input-affix {
+  flex: 1;
+}
+
+.warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.breakdown {
+  margin-top: var(--space-lg);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.breakdown summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--forest);
+  cursor: pointer;
+}
+
+.breakdown dl {
+  margin: 0 0 var(--space-sm);
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border);
+}
+
+.breakdown-row dt {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: var(--charcoal);
+}
+
+.breakdown-note {
+  font-size: 12px;
+  color: var(--slate);
+}
+
+.breakdown-row dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--charcoal);
+}
+
+.breakdown-row.strong dt,
+.breakdown-row.strong dd {
+  font-weight: 800;
+  color: var(--forest);
+}
+
+.floors-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.floors-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+/* Fill-up log (Vehicle tab) */
+.fillup-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.fillup-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-md);
+}
+
+.fillup-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fillup-date {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+.fillup-meta,
+.fillup-tank {
+  font-size: 13px;
+  color: var(--slate);
+  font-variant-numeric: tabular-nums;
+}
+
+.fill-kind {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--slate);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-sm);
+}
+
+.fill-kind.full {
+  color: var(--forest-dark);
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.fillup-confirm {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* Five tabs need a little less room each */
+@media (max-width: 380px) {
+  .tab-label {
+    font-size: 10px;
+  }
+
+  .verdict-word {
+    font-size: 38px;
+  }
+
+  .verdict-stat-value {
+    font-size: 19px;
+  }
 }

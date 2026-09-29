@@ -5,6 +5,11 @@ const STORAGE_KEY = 'gasguide.preferences';
 const DEFAULT_PREFERENCES = {
   askAtPump: true,
   findStationsNearMe: true,
+  // "Worth it?" screen. Stored as the strings the driver typed so the
+  // inputs round-trip exactly ("1.00" stays "1.00"); src/lib parses them.
+  offerFloors: { hourly: '18', perMile: '1.00' },
+  offerReturnMiles: '',
+  offerWear: { enabled: false, centsPerMile: '' },
 };
 
 function loadPreferences() {
@@ -29,7 +34,11 @@ export function PreferencesProvider({ children }) {
     setPreferences((current) => ({ ...current, [key]: !current[key] }));
   }
 
-  const value = { preferences, togglePreference };
+  function setPreference(key, value) {
+    setPreferences((current) => ({ ...current, [key]: value }));
+  }
+
+  const value = { preferences, togglePreference, setPreference };
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;
 }

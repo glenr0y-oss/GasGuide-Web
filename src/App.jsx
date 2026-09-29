@@ -3,6 +3,7 @@ import { VehicleProvider } from './context/VehicleContext';
 import { ProProvider, usePro } from './context/ProContext';
 import { PreferencesProvider } from './context/PreferencesContext';
 import TripCostScreen from './screens/TripCostScreen';
+import OfferScreen from './screens/OfferScreen';
 import StationMapScreen from './screens/StationMapScreen';
 import VehicleProfileScreen from './screens/VehicleProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -11,6 +12,7 @@ import './App.css';
 
 const TABS = [
   { id: 'trip', label: 'Trip Cost', icon: '⛽', Component: TripCostScreen },
+  { id: 'offer', label: 'Worth it?', icon: '⚖️', Component: OfferScreen },
   { id: 'map', label: 'Stations', icon: '📍', Component: StationMapScreen },
   { id: 'vehicle', label: 'Vehicle', icon: '🚗', Component: VehicleProfileScreen },
   { id: 'settings', label: 'Settings', icon: '⚙️', Component: SettingsScreen },

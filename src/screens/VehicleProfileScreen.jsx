@@ -3,6 +3,8 @@ import { conditionFactors, getEfficiencyUnitLabel } from '../data/mockVehicles';
 import { useVehicle } from '../context/VehicleContext';
 import StatCard from '../components/StatCard';
 import AddVehicleModal from '../components/AddVehicleModal';
+import FillUpModal from '../components/FillUpModal';
+import FillUpLog from '../components/FillUpLog';
 
 export default function VehicleProfileScreen() {
   const {
@@ -15,8 +17,13 @@ export default function VehicleProfileScreen() {
     toggleFactor,
     adjustedEfficiency,
     realEfficiency,
+    realEfficiencySummary,
+    fillUps,
+    recordFillUp,
+    deleteFillUp,
   } = useVehicle();
   const [showAddVehicle, setShowAddVehicle] = useState(false);
+  const [showFillUp, setShowFillUp] = useState(false);
 
   const isEv = selectedVehicle.fuelKind === 'ev';
   const unitLabel = getEfficiencyUnitLabel(selectedVehicle);
@@ -46,13 +53,7 @@ export default function VehicleProfileScreen() {
           value={
             realEfficiency ? realEfficiency.toFixed(1) : adjustedEfficiency ? adjustedEfficiency.toFixed(1) : '—'
           }
-          sublabel={
-            realEfficiency
-              ? 'measured from your last fill-up'
-              : totalPenaltyPct
-                ? `-${totalPenaltyPct}% for what you flagged below`
-                : 'nothing flagged yet'
-          }
+          sublabel={realMpgSublabel({ realEfficiencySummary, totalPenaltyPct, isEv })}
         />
         <StatCard
           label={isEv ? 'Battery size' : 'Tank size'}
@@ -87,6 +88,25 @@ export default function VehicleProfileScreen() {
         <AddVehicleModal onAdd={addVehicle} onClose={() => setShowAddVehicle(false)} />
       )}
 
+      <span className="label section-spacing">Fill-up log</span>
+      <p className="hint">
+        Log the odometer and whether you filled it all the way. Three full tanks and GasGuide switches to
+        your real {unitLabel} everywhere — including the &ldquo;Worth it?&rdquo; verdict.
+      </p>
+      <FillUpLog vehicle={selectedVehicle} fillUps={fillUps} onDelete={deleteFillUp} />
+      <button className="add-vehicle-button" onClick={() => setShowFillUp(true)}>
+        + Log a fill-up
+      </button>
+
+      {showFillUp && (
+        <FillUpModal
+          vehicle={selectedVehicle}
+          existingFillUps={fillUps}
+          onSave={recordFillUp}
+          onClose={() => setShowFillUp(false)}
+        />
+      )}
+
       <span className="label section-spacing">Condition factors</span>
       <p className="hint">
         Manual, on purpose — you know about a bad alignment or underinflated tires long before any
@@ -101,4 +121,13 @@ export default function VehicleProfileScreen() {
       ))}
     </div>
   );
+}
+
+function realMpgSublabel({ realEfficiencySummary, totalPenaltyPct, isEv }) {
+  const { efficiency, validIntervals, fullFillUpsNeeded } = realEfficiencySummary;
+  if (efficiency) {
+    return `measured over ${validIntervals.length} full ${isEv ? 'charges' : 'tanks'}`;
+  }
+  const waiting = `${fullFillUpsNeeded} more full ${isEv ? 'charge' : 'fill-up'}${fullFillUpsNeeded === 1 ? '' : 's'} to measure`;
+  return totalPenaltyPct ? `-${totalPenaltyPct}% for what you flagged · ${waiting}` : `sticker estimate · ${waiting}`;
 }
