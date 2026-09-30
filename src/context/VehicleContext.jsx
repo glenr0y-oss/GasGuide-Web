@@ -1,27 +1,18 @@
 import { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { getVehicleOptions, getAdjustedEfficiency } from '../data/mockVehicles';
+import { computeRealEfficiency, sortFillUps } from '../lib/fillUps';
+import { readJson, readString, writeJson, writeString } from '../utils/storage';
 
 const ADDED_VEHICLES_KEY = 'gasguide.addedVehicles';
 const SELECTED_VEHICLE_KEY = 'gasguide.selectedVehicleId';
 const FACTORS_KEY = 'gasguide.factorsByVehicle';
-const REAL_EFFICIENCY_KEY = 'gasguide.realEfficiencyByVehicle';
+// The fill-up log itself, per vehicle. Real MPG is always derived from it
+// (full-to-full, see src/lib/fillUps.js) and never stored on its own — the
+// old single-fill 'gasguide.realEfficiencyByVehicle' value is no longer read.
+const FILL_UPS_KEY = 'gasguide.fillUpsByVehicle';
 
-function loadAddedVehicles() {
-  try {
-    const raw = localStorage.getItem(ADDED_VEHICLES_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function loadJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
+function newFillUpId() {
+  return globalThis.crypto?.randomUUID?.() ?? `fill-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 const VehicleContext = createContext(null);
@@ -30,38 +21,36 @@ export function VehicleProvider({ children }) {
   // The seed fleet always comes fresh from mockVehicles.js; only vehicles the
   // user has added via VIN lookup need to survive a reload, so just those go
   // to localStorage rather than duplicating the whole catalog there.
-  const [addedVehicles, setAddedVehicles] = useState(loadAddedVehicles);
+  const [addedVehicles, setAddedVehicles] = useState(() => readJson(ADDED_VEHICLES_KEY, []));
   const vehicles = useMemo(() => [...getVehicleOptions(), ...addedVehicles], [addedVehicles]);
 
   useEffect(() => {
-    localStorage.setItem(ADDED_VEHICLES_KEY, JSON.stringify(addedVehicles));
+    writeJson(ADDED_VEHICLES_KEY, addedVehicles);
   }, [addedVehicles]);
 
   const [selectedVehicleId, setSelectedVehicleIdState] = useState(
-    () => localStorage.getItem(SELECTED_VEHICLE_KEY) || vehicles[0].id
+    () => readString(SELECTED_VEHICLE_KEY) || vehicles[0].id
   );
 
   function setSelectedVehicleId(id) {
     setSelectedVehicleIdState(id);
-    localStorage.setItem(SELECTED_VEHICLE_KEY, id);
+    writeString(SELECTED_VEHICLE_KEY, id);
   }
   // Keyed by vehicle id — condition factors are specific to one vehicle's
   // wear and tear, so flagging an issue on one car must not silently carry
   // that penalty over when the user switches to a different vehicle.
-  const [factorsByVehicle, setFactorsByVehicle] = useState(() => loadJson(FACTORS_KEY, {}));
-  // Also keyed by vehicle id — the real MPG a fill-up report produces for
-  // one car has nothing to say about a different one.
-  const [realEfficiencyByVehicle, setRealEfficiencyByVehicle] = useState(() =>
-    loadJson(REAL_EFFICIENCY_KEY, {})
-  );
+  const [factorsByVehicle, setFactorsByVehicle] = useState(() => readJson(FACTORS_KEY, {}));
+  // Also keyed by vehicle id — one car's fill-ups say nothing about another's
+  // mileage.
+  const [fillUpsByVehicle, setFillUpsByVehicle] = useState(() => readJson(FILL_UPS_KEY, {}));
 
   useEffect(() => {
-    localStorage.setItem(FACTORS_KEY, JSON.stringify(factorsByVehicle));
+    writeJson(FACTORS_KEY, factorsByVehicle);
   }, [factorsByVehicle]);
 
   useEffect(() => {
-    localStorage.setItem(REAL_EFFICIENCY_KEY, JSON.stringify(realEfficiencyByVehicle));
-  }, [realEfficiencyByVehicle]);
+    writeJson(FILL_UPS_KEY, fillUpsByVehicle);
+  }, [fillUpsByVehicle]);
 
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0];
   const activeFactorIds = factorsByVehicle[selectedVehicleId] ?? [];
@@ -69,17 +58,34 @@ export function VehicleProvider({ children }) {
     () => getAdjustedEfficiency(selectedVehicle, activeFactorIds),
     [selectedVehicle, activeFactorIds]
   );
-  const realEfficiency = realEfficiencyByVehicle[selectedVehicleId] ?? null;
-  // A logged fill-up is measured, real-world data — per CLAUDE.md's price +
-  // MPG loop, that's more accurate than the sticker rating, so it takes
-  // over from the condition-factor estimate as soon as one exists.
+  const fillUps = useMemo(
+    () => sortFillUps(fillUpsByVehicle[selectedVehicleId] ?? []),
+    [fillUpsByVehicle, selectedVehicleId]
+  );
+  const realEfficiencySummary = useMemo(
+    () => computeRealEfficiency(fillUps, selectedVehicle),
+    [fillUps, selectedVehicle]
+  );
+  // Measured from full-to-full fill-ups — more accurate than the sticker, so
+  // it takes over from the condition-factor estimate once it exists (3 full
+  // tanks logged, per SPEC.md §8).
+  const realEfficiency = realEfficiencySummary.efficiency;
   const effectiveEfficiency = realEfficiency ?? adjustedEfficiency;
 
-  function recordFillUp(report) {
-    if (report?.realEfficiency == null) return;
-    setRealEfficiencyByVehicle((current) => ({
+  // `entry` has already passed validateFillUp(); this only stores it.
+  function recordFillUp(entry, vehicleId = selectedVehicleId) {
+    const saved = { id: newFillUpId(), ...entry };
+    setFillUpsByVehicle((current) => ({
       ...current,
-      [selectedVehicleId]: report.realEfficiency,
+      [vehicleId]: [...(current[vehicleId] ?? []), saved],
+    }));
+    return saved;
+  }
+
+  function deleteFillUp(id, vehicleId = selectedVehicleId) {
+    setFillUpsByVehicle((current) => ({
+      ...current,
+      [vehicleId]: (current[vehicleId] ?? []).filter((f) => f.id !== id),
     }));
   }
 
@@ -108,8 +114,11 @@ export function VehicleProvider({ children }) {
     toggleFactor,
     adjustedEfficiency,
     realEfficiency,
+    realEfficiencySummary,
     effectiveEfficiency,
+    fillUps,
     recordFillUp,
+    deleteFillUp,
   };
 
   return <VehicleContext.Provider value={value}>{children}</VehicleContext.Provider>;

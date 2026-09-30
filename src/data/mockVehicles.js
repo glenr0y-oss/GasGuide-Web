@@ -47,10 +47,20 @@ export const conditionFactors = [
 export function getAdjustedEfficiency(vehicle, activeFactorIds) {
   const baseEfficiency = vehicle?.fuelKind === 'ev' ? vehicle?.efficiencyMiPerKwh : vehicle?.combinedMpg;
   if (baseEfficiency == null) return null;
-  const totalPenaltyPct = conditionFactors
+  return applyConditionFactors(baseEfficiency, activeFactorIds);
+}
+
+// Total percentage penalty for the flagged factors (e.g. 3 + 5 = 8).
+export function getConditionPenaltyPct(activeFactorIds = []) {
+  return conditionFactors
     .filter((f) => activeFactorIds.includes(f.id))
     .reduce((sum, f) => sum + f.mpgPenaltyPct, 0);
-  const adjusted = baseEfficiency * (1 - totalPenaltyPct / 100);
+}
+
+// Applies the flagged penalties to any base rating — combined or city —
+// so every screen shares one damage model.
+export function applyConditionFactors(baseEfficiency, activeFactorIds = []) {
+  const adjusted = baseEfficiency * (1 - getConditionPenaltyPct(activeFactorIds) / 100);
   return Math.max(adjusted, 1);
 }
 

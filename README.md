@@ -7,7 +7,8 @@ mobile SDK version-matching problems entirely: it's just a browser.
 ## Run it
 
 ```bash
-git init && git add -A && git commit -m "GasGuide web starter"
+git clone https://github.com/glenr0y-oss/GasGuide-Web.git
+cd GasGuide-Web
 npm install
 npm run dev
 ```
@@ -27,6 +28,15 @@ no QR code, no install required on the phone at all.
 Commit before you open this in Claude Code, and again after any change you
 understand and want to keep.
 
+## Run the tests
+
+```bash
+npm test
+```
+
+Vitest runs the unit tests for the money and mileage math in `src/lib/` and
+the screen tests. They should all pass before anything gets committed.
+
 ## Continue building it in Claude Code
 
 Open this folder in Claude Code (`cd` into it, run `claude`). It reads
@@ -38,10 +48,12 @@ exactly where each real integration goes, in build order.
 | Piece | Status |
 |---|---|
 | Calculator math (gallons, cost) | Real |
+| "Worth it?" offer verdict for gig drivers | Real — see SPEC.md |
+| Fill-up log + real MPG (full-to-full) | Real — stored on the device |
 | Condition-factor ("damage") adjustments | Real — manual by design |
 | Map rendering | Real (OpenStreetMap via Leaflet, no key needed, ever) |
 | Station pins + prices | Mock data (`src/data/mockStations.js`) |
-| Vehicle specs | Mock data (`src/data/mockVehicles.js`) |
+| Vehicle specs | Mock sample fleet, plus real NHTSA + EPA lookup when you add a vehicle by VIN |
 | Trip distance | Manual number entry, not yet a real route lookup |
 | Ads / paywall screens | Placeholder UI only, nothing wired to billing |
 

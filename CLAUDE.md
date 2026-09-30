@@ -32,6 +32,10 @@ Run `npm install` then `npm run dev`. That's the entire setup — no second
 "reconcile versions" command needed the way Expo required, since a web
 dev server doesn't have to match a separately-installed app's version.
 
+Run `npm test` (Vitest) before every commit and keep it green. Pure math in
+`src/lib/` has unit tests next to each file; screens have jsdom tests
+(`// @vitest-environment jsdom` at the top of the test file).
+
 ## Project structure
 
 ```
@@ -51,9 +55,20 @@ src/
                             specific code in this file
   data/mockStations.js      placeholder station prices + the crowdsourced
                             price-report math — also carried over unchanged
-  screens/                  TripCostScreen, StationMapScreen,
-                            VehicleProfileScreen, SettingsScreen
-  components/                PriceBadge, StatCard
+  screens/                  TripCostScreen, OfferScreen ("Worth it?"),
+                            StationMapScreen, VehicleProfileScreen,
+                            SettingsScreen
+  components/                PriceBadge, StatCard, FillUpModal, FillUpLog,
+                            AddVehicleModal, DestinationPicker
+  lib/                      pure logic, no React — the only place money or
+                            mileage math is allowed to live:
+    offerMath.js              offer verdict: net, $/hr, $/mi, Take /
+                              Borderline / Decline (SPEC.md §6)
+    offerInputs.js            which MPG and gas price the verdict uses, and
+                              where each came from (SPEC.md §6.1–6.2)
+    fillUps.js                fill-up validation + real MPG, full-to-full
+                              (SPEC.md §8)
+    *.test.js                 unit tests for each of the above
 public/
   icon.png / icon-source.svg  the logo — same mark as the mobile build
 ```
@@ -67,6 +82,20 @@ values and what each is reserved for. Numbers (prices, MPG, distances) use
 the `.stat` class (tabular numerals) — this is a calculator, figures should
 read as precise. Price highlights use the fully-rounded `.price-badge`
 pill, never a plain rectangle — reserved for prices specifically.
+
+## The "Worth it?" verdict
+
+A gig driver types an offer's payout, miles and minutes and gets Take /
+Borderline / Decline after gas (and optional wear), against floors they set.
+**SPEC.md is the source of truth** — inputs, math, verdict bands, edge cases
+and the never-do list. Rules that matter when changing it:
+
+- No arithmetic in components. Screens call `computeOffer()` and render it.
+- Compare unrounded numbers to floors; round only for display.
+- Every MPG and price on screen prints its source (real / EPA city / EPA
+  combined; logged / nearby / typed). Never substitute a silent default.
+- No verdict when a required input is missing — say what's missing instead.
+- Offer data never leaves the device.
 
 ## The condition ("damage") model — deliberately manual
 
@@ -86,12 +115,17 @@ The core data acquisition strategy, and more than a price tracker:
    more realistically becomes "prompt when the user opens the app near a
    known station, or lets them manually log a fill-up") detects a stop at
    a station in `mockStations`.
-2. A single low-friction prompt asks what they paid per gallon.
-3. That one answer does two things (`processFillUpReport` in
-   `mockStations.js` already models the math):
-   - Feeds the community price map (anonymized, aggregated)
-   - Combined with miles driven since the last fill-up, produces real MPG
-     for that specific vehicle — more accurate than the EPA rating
+2. A single low-friction prompt asks what they paid per gallon, plus the
+   gallons, the odometer and whether they filled it all the way.
+3. That one answer does two things:
+   - Feeds the community price map (anonymized, aggregated — needs the
+     backend, not built yet)
+   - Measures real MPG for that specific vehicle, full-to-full: between two
+     full-tank fill-ups, miles = odometer difference and fuel = everything
+     added since the first (partials count). Real MPG = Σ miles ÷ Σ fuel
+     over valid tanks, once 3 full-tank fill-ups exist. Tanks with a
+     too-long gap or an implausible result (a missed log, a typo) are left
+     out and flagged. All of it lives in `src/lib/fillUps.js`.
 
 **On the prompt's framing:** lead with what the answer is for — "Help keep
 prices accurate nearby — what'd you pay?" — and make it a five-second tap,

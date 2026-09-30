@@ -23,6 +23,7 @@ export default function TripCostScreen() {
     toggleFactor,
     realEfficiency,
     effectiveEfficiency,
+    fillUps,
     recordFillUp,
   } = useVehicle();
   const { preferences } = usePreferences();
@@ -122,6 +123,7 @@ export default function TripCostScreen() {
       {showFillUp && (
         <FillUpModal
           vehicle={selectedVehicle}
+          existingFillUps={fillUps}
           onSave={recordFillUp}
           onClose={() => setShowFillUp(false)}
         />

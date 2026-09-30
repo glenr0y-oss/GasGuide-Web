@@ -21,6 +21,8 @@ export default function AddVehicleModal({ onAdd, onClose }) {
         fuelType: epa?.fuelType ?? decoded.fuelType,
         combinedMpg: epa?.combinedMpg ?? null,
         efficiencyMiPerKwh: epa?.efficiencyMiPerKwh ?? null,
+        cityMpg: epa?.cityMpg ?? null,
+        cityMiPerKwh: epa?.cityMiPerKwh ?? null,
         tankSizeGallons: null,
         batteryKwh: null,
         epaMatched: Boolean(epa),
